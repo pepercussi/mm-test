@@ -1,25 +1,58 @@
 #!/usr/bin/env node
+var storage = require('node-persist');
 
 /**
  * Module dependencies.
  */
 
 var app = require('../app');
+var wsApp = require('../wsapp');
 var debug = require('debug')('mm-test:server');
 var http = require('http');
+// Create and set the necessary vars for Web Socket Server
+const serverWS = require('http').Server(wsApp);
+const WebSocketServer = require("websocket").server;
+
+const wsServer = new WebSocketServer({
+  httpServer: serverWS,
+  autoAcceptConnections: false
+});
 
 /**
  * Get port from environment and store in Express.
  */
 
 var port = normalizePort(process.env.PORT || '3000');
+var wsPort = normalizePort(process.env.PORT_WS || '3030');
 app.set('port', port);
+wsApp.set("port", wsPort);
 
 /**
  * Create HTTP server.
  */
 
 var server = http.createServer(app);
+
+
+/* 
+* Here we get the web socket message sended by the client
+* We store it and send an answer back 
+*/
+wsServer.on("request", async (request) =>{
+  const connection = request.accept(null, request.origin);
+  connection.on("message", async (message) => {
+    var objMessage = JSON.parse(message.utf8Data);
+    var key = Object.keys(objMessage);
+    var value = Object.values(objMessage);
+    await storage.init();
+    await storage.setItem(key[0], value[0]);
+    connection.sendUTF("Received: Key -> " + key[0] + " | Value -> " + value[0]);
+  });
+  connection.on("close", (reasonCode, description) => {
+      console.log("Client disconnected");
+  });
+});
+
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -30,6 +63,10 @@ server.listen(port, () =>{
 });
 server.on('error', onError);
 server.on('listening', onListening);
+// Starting the WS server in his current port
+serverWS.listen(wsPort, () =>{
+  console.log('Websocket Server listening in port: ' + wsPort);
+})
 
 /**
  * Normalize a port into a number, string, or false.
