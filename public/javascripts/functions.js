@@ -46,8 +46,6 @@ function wsConnect() {
 function onOpen(evt) {
     // Habilitamos el botón Enviar
     document.getElementById("enviar").disabled = false;
-    // Enviamos el saludo inicial al servidor
-    // doSend("Bienvenid@! Este es el primer mensaje por defecto. Disfruta de esta app :)");
 }
 
 // Se ejecuta cuando la conexión con el servidor se cierra
@@ -65,8 +63,7 @@ function onClose(evt) {
 // Se invoca cuando se recibe un mensaje del servidor
 function onMessage(evt) {
     // Agregamos al textarea el mensaje recibido
-    var area = document.getElementById("mensajes")
-    area.innerHTML += evt.data + "\n";
+    $("#mensajes").append("<li class='list-group-item'>" + evt.data + "</li>");
 }
 
 // Se invoca cuando se presenta un error en el WebSocket
@@ -115,9 +112,9 @@ $( "#btnGetAllKeyValue" ).click(function() {
         cleanMessageBlock();
         $("#messageTitle").append("Keys list:");
         if(data.status == "ok"){
-            var list = "<ul class='list-group list-group-flush' >";
+            var list = "<ul class='list-group' >";
             data.arrayData.forEach(key => {
-                list += "<li>" + key + "</li>"
+                list += "<li class='list-group-item'>" + key + "</li>"
             });
             list += "</ul>";
             $("#messageDetail").append(list);
