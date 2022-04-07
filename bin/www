@@ -1,5 +1,19 @@
 #!/usr/bin/env node
 var storage = require('node-persist');
+const Joi = require('joi');
+
+const schema = Joi.object({
+  key: Joi.string()
+  .alphanum()
+  .min(3)
+  .max(30)
+  .required(),
+  value: Joi.string()
+  .alphanum()
+  .min(3)
+  .max(30)
+  .required(),
+});
 
 /**
  * Module dependencies.
@@ -41,12 +55,19 @@ var server = http.createServer(app);
 wsServer.on("request", async (request) =>{
   const connection = request.accept(null, request.origin);
   connection.on("message", async (message) => {
+    // get the message
     var objMessage = JSON.parse(message.utf8Data);
     var key = Object.keys(objMessage);
     var value = Object.values(objMessage);
-    await storage.init();
-    await storage.setItem(key[0], value[0]);
-    connection.sendUTF("Received: Key -> " + key[0] + " | Value -> " + value[0]);
+    // Validate the imput
+    const { error, input} = await schema.validate({ key: key[0], value: value[0] });
+    if(!error){
+      await storage.init();
+      await storage.setItem(key[0], value[0]);
+      connection.sendUTF("Received: Key -> " + key[0] + " | Value -> " + value[0]);
+    }else{
+      connection.sendUTF("There was an error with data input: "+error);
+    }
   });
   connection.on("close", (reasonCode, description) => {
       console.log("Client disconnected");

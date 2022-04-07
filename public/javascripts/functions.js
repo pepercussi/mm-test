@@ -76,7 +76,7 @@ function onError(evt) {
 
 // Envía un mensaje al servidor (y se imprime en la consola)
 function doSend(message) {
-    console.log("Enviando: " + message);
+    console.log("Sending: " + message);
     websocket.send(message);
 }
 
@@ -88,11 +88,16 @@ $( "#btnGetKeyValue" ).click(function() {
     var key = $("#key").val();
     $.get( apiRestHost+'/rest/', { key: key }, function( data ) {
         cleanMessageBlock();
-        $("#messageTitle").append("Value for \""+key+"\" key:");
-        if(data.value != ""){
-            $("#messageDetail").append(data.value);
+        if(data.status != "error"){
+            $("#messageTitle").append("Value for \""+key+"\" key:");
+            if(data.value != ""){
+                $("#messageDetail").append(data.value);
+            }else{
+                $("#messageDetail").append("<p class='bg-warning'>The key " + key + " was not created yet</p>");
+            }
         }else{
-            $("#messageDetail").append("<p class='bg-warning'>The key " + key + " was not created yet</p>");
+            $("#messageTitle").append("An error happened requesting the values for the key \""+key+"\":");
+            $("#messageDetail").append("<p class='bg-warning'>" + data.error.details[0].message + "</p>");
         }
         
     }).fail(function() {
@@ -110,7 +115,7 @@ $( "#btnGetAllKeyValue" ).click(function() {
         cleanMessageBlock();
         $("#messageTitle").append("Keys list:");
         if(data.status == "ok"){
-            var list = "<ul>";
+            var list = "<ul class='list-group list-group-flush' >";
             data.arrayData.forEach(key => {
                 list += "<li>" + key + "</li>"
             });
@@ -133,6 +138,7 @@ $( "#btnCleanKeys" ).click(function() {
     $.post( apiRestHost+'/rest/delete/all', function( data ) {
         if(data.status && data.status == "ok"){
             $("#messageTitle").append("All keys where deleted");
+            $("#mensajes").empty();
         }else{
             alert( "An unespected error was happen" );
         }

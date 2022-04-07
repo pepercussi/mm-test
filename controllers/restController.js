@@ -1,18 +1,35 @@
 var storage = require('node-persist');
+const Joi = require('joi');
+
+const schema = Joi.object({
+  key: Joi.string()
+  .alphanum()
+  .min(3)
+  .max(30)
+  .required(),
+});
 
 exports.getValueByKey = async function(req, res, next) {
     try {
-        if(req.query.key){
-            var key = req.query.key;
-            await storage.init();
-            var value = await storage.getItem(key);
-            var data = {
-                value: value
+        const { error, input} = await schema.validate({ key: req.query.key });
+        console.log(error);
+        console.log(input);
+        if(!error){
+            if(req.query.key){
+                var key = req.query.key;
+                await storage.init();
+                var value = await storage.getItem(key);
+                var data = {
+                    status: "ok",
+                    value: value
+                }
+                if(!value){
+                    data.value = "";
+                }
+                res.send(data);
             }
-            if(!value){
-                data.value = "";
-            }
-            res.send(data);
+        }else{
+            res.send({status: "error", error: error});
         }
     } catch (error) {
         res.send({status: "error", error: error});
