@@ -4,7 +4,7 @@ This is an endpoint that allows you to create key values data and recover it fro
 
 ## Installation
 
-* Download the repository
+* Download the repository (https://github.com/pepercussi/mm-test)
 * go to the project root folder and run:
 
 ```bash
