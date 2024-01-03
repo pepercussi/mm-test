@@ -17,7 +17,7 @@ const schema = Joi.object({
 
 let wsApp = require('../wsapp');
 
-let debug = require('debug')('mm-test:server');
+let debug = require('debug')('mm-test:serverWS');
 
 // Create and set the necessary vars for Web Socket Server
 const serverWS = require('http').Server(wsApp);

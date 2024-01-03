@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "start": "concurrently \"node ./bin/webSocketService.js\" \"node ./bin/apiRest.js\"",
     "startWebSocket": "node ./bin/webSocketService.js",
     "startApiRest": "node ./bin/apiRest.js"
   },
@@ -15,5 +16,8 @@
     "morgan": "~1.9.1",
     "node-persist": "^3.1.0",
     "websocket": "^1.0.34"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }
