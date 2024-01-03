@@ -1,5 +1,5 @@
-var storage = require('node-persist');
 const Joi = require('joi');
+let storage = require('node-persist');
 
 const schema = Joi.object({
   key: Joi.string()
@@ -16,10 +16,10 @@ exports.getValueByKey = async function(req, res, next) {
         console.log(input);
         if(!error){
             if(req.query.key){
-                var key = req.query.key;
+                let key = req.query.key;
                 await storage.init();
-                var value = await storage.getItem(key);
-                var data = {
+                let value = await storage.getItem(key);
+                let data = {
                     status: "ok",
                     value: value
                 }
@@ -39,11 +39,11 @@ exports.getValueByKey = async function(req, res, next) {
 exports.getAllKeys = async function(req, res, next) {
     try {
         await storage.init();
-        var data = {
+        let data = {
             status: 'empty',
             arrayData: []
         }
-        var arrKeys = await storage.keys();
+        let arrKeys = await storage.keys();
         if(arrKeys.length > 0){
             data.status = 'ok';
             data.arrayData = arrKeys;

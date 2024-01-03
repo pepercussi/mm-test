@@ -1,33 +1,34 @@
 const apiRestHost = "http://localhost:3000";
 const webSocketHost = "ws://localhost:3030";
+let websocket;
 
-// Se invoca cuando se oprime el botón Enviar
-function enviarTexto(event){
+// This function runs when you click in "Add Key Value" button
+function sendText(event){
     event.preventDefault();
-    var key = event.target.key.value;
-    var val = event.target.val.value;
-    var keyValueObject = {};
+    let key = event.target.key.value;
+    let val = event.target.val.value;
+    let keyValueObject = {};
     keyValueObject[key] = val;
 
-    // Enviamos el valor del campo al servidor
+    // Send the value from field to the server
     doSend(JSON.stringify(keyValueObject));
-    // Vaciamos los campos
+    // Clean the fields
     event.target.key.value="";
     event.target.val.value="";
 }
 
-// La función init se ejecuta cuando termina de cargarse la página
+// init function runs once the page is loaded
 function init() {
-    // Conexión con el servidor de websocket
+    // Connect to WebSocket server
     wsConnect();
 }
 
-// Invoca esta función para conectar con el servidor de WebSocket
+// This function is used to connect with WebSocket Server
 function wsConnect() {
     // Connect to WebSocket server
     websocket = new WebSocket(webSocketHost);
 
-    // Asignación de callbacks
+    // Callbacks asignation
     websocket.onopen = function (evt) {
         onOpen(evt)
     };
@@ -42,47 +43,47 @@ function wsConnect() {
     };
 }
 
-// Se ejecuta cuando se establece la conexión Websocket con el servidor
+// This runs once WebSocket server conection is stabilished
 function onOpen(evt) {
-    // Habilitamos el botón Enviar
-    document.getElementById("enviar").disabled = false;
+    // Enable "Add Key Value" button
+    document.getElementById("btnSend").disabled = false;
 }
 
-// Se ejecuta cuando la conexión con el servidor se cierra
+// This runs once WebSocket server conection is closed
 function onClose(evt) {
 
-    // Deshabilitamos el boton
-    document.getElementById("enviar").disabled = true;
+    // Disable "Add Key Value" button
+    document.getElementById("btnSend").disabled = true;
 
-    // Intenta reconectarse cada 2 segundos
+    // Try to reconnect every 2 seconds
     setTimeout(function () {
         wsConnect()
     }, 2000);
 }
 
-// Se invoca cuando se recibe un mensaje del servidor
+// Runs once a message from WebSocket server is received
 function onMessage(evt) {
-    // Agregamos al textarea el mensaje recibido
-    $("#mensajes").append("<li class='list-group-item'>" + evt.data + "</li>");
+    // Adding the received message into a textarea
+    $("#messages").append("<li class='list-group-item'>" + evt.data + "</li>");
 }
 
-// Se invoca cuando se presenta un error en el WebSocket
+// Runs when there is an error in the WebSocket
 function onError(evt) {
     console.log("ERROR: " + evt.data);
 }
 
-// Envía un mensaje al servidor (y se imprime en la consola)
+// Send a message to the WebSocket server and print it in the console
 function doSend(message) {
     console.log("Sending: " + message);
     websocket.send(message);
 }
 
 
-// Se invoca la función init cuando la página termina de cargarse
+// Call init function once page is loaded
 window.addEventListener("load", init, false);
 
 $( "#btnGetKeyValue" ).click(function() {
-    var key = $("#key").val();
+    let key = $("#key").val();
     $.get( apiRestHost+'/rest/', { key: key }, function( data ) {
         cleanMessageBlock();
         if(data.status != "error"){
@@ -112,7 +113,7 @@ $( "#btnGetAllKeyValue" ).click(function() {
         cleanMessageBlock();
         $("#messageTitle").append("Keys list:");
         if(data.status == "ok"){
-            var list = "<ul class='list-group' >";
+            let list = "<ul class='list-group' >";
             data.arrayData.forEach(key => {
                 list += "<li class='list-group-item'>" + key + "</li>"
             });
@@ -135,7 +136,7 @@ $( "#btnCleanKeys" ).click(function() {
     $.post( apiRestHost+'/rest/delete/all', function( data ) {
         if(data.status && data.status == "ok"){
             $("#messageTitle").append("All keys where deleted");
-            $("#mensajes").empty();
+            $("#messages").empty();
         }else{
             alert( "An unespected error was happen" );
         }

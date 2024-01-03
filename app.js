@@ -1,11 +1,11 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+let express = require('express');
+let path = require('path');
+let cookieParser = require('cookie-parser');
+let logger = require('morgan');
 
-var restRouter = require('./routes/rest');
+let restRouter = require('./routes/rest');
 
-var app = express();
+let app = express();
 
 //CORS Setup
 app.use((req, res, next) => {

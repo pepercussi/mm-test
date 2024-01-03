@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var storage = require('node-persist');
+let storage = require('node-persist');
 const Joi = require('joi');
 
 const schema = Joi.object({
@@ -19,10 +19,10 @@ const schema = Joi.object({
  * Module dependencies.
  */
 
-var app = require('../app');
-var wsApp = require('../wsapp');
-var debug = require('debug')('mm-test:server');
-var http = require('http');
+let app = require('../app');
+let wsApp = require('../wsapp');
+let debug = require('debug')('mm-test:server');
+let http = require('http');
 // Create and set the necessary vars for Web Socket Server
 const serverWS = require('http').Server(wsApp);
 const WebSocketServer = require("websocket").server;
@@ -36,8 +36,8 @@ const wsServer = new WebSocketServer({
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
-var wsPort = normalizePort(process.env.PORT_WS || '3030');
+let port = normalizePort(process.env.PORT || '3000');
+let wsPort = normalizePort(process.env.PORT_WS || '3030');
 app.set('port', port);
 wsApp.set("port", wsPort);
 
@@ -45,7 +45,7 @@ wsApp.set("port", wsPort);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+let server = http.createServer(app);
 
 
 /* 
@@ -56,9 +56,9 @@ wsServer.on("request", async (request) =>{
   const connection = request.accept(null, request.origin);
   connection.on("message", async (message) => {
     // get the message
-    var objMessage = JSON.parse(message.utf8Data);
-    var key = Object.keys(objMessage);
-    var value = Object.values(objMessage);
+    let objMessage = JSON.parse(message.utf8Data);
+    let key = Object.keys(objMessage);
+    let value = Object.values(objMessage);
     // Validate the imput
     const { error, input} = await schema.validate({ key: key[0], value: value[0] });
     if(!error){
@@ -94,7 +94,7 @@ serverWS.listen(wsPort, () =>{
  */
 
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+  let port = parseInt(val, 10);
 
   if (isNaN(port)) {
     // named pipe
@@ -118,7 +118,7 @@ function onError(error) {
     throw error;
   }
 
-  var bind = typeof port === 'string'
+  let bind = typeof port === 'string'
     ? 'Pipe ' + port
     : 'Port ' + port;
 
@@ -142,8 +142,8 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
+  let addr = server.address();
+  let bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);

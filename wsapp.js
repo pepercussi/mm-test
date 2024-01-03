@@ -1,7 +1,7 @@
-var express = require('express');
-var path = require('path');
+let express = require('express');
+let path = require('path');
 const cors = require('cors');
-var wsApp = express();
+let wsApp = express();
 
 wsApp.use(cors());
 wsApp.use(express.json());
