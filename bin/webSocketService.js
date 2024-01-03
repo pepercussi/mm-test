@@ -15,14 +15,10 @@ const schema = Joi.object({
   .required(),
 });
 
-/**
- * Module dependencies.
- */
-
-let app = require('../app');
 let wsApp = require('../wsapp');
+
 let debug = require('debug')('mm-test:server');
-let http = require('http');
+
 // Create and set the necessary vars for Web Socket Server
 const serverWS = require('http').Server(wsApp);
 const WebSocketServer = require("websocket").server;
@@ -36,16 +32,8 @@ const wsServer = new WebSocketServer({
  * Get port from environment and store in Express.
  */
 
-let port = normalizePort(process.env.PORT || '3000');
-let wsPort = normalizePort(process.env.PORT_WS || '3030');
-app.set('port', port);
+let wsPort = (process.env.PORT_WS || '3030');
 wsApp.set("port", wsPort);
-
-/**
- * Create HTTP server.
- */
-
-let server = http.createServer(app);
 
 
 /* 
@@ -66,85 +54,57 @@ wsServer.on("request", async (request) =>{
       await storage.setItem(key[0], value[0]);
       connection.sendUTF("Received: Key -> " + key[0] + " | Value -> " + value[0]);
     }else{
-      connection.sendUTF("There was an error with data input: "+error);
+      connection.sendUTF("There was an error with data input (" + input + "): " + error.message);
     }
   });
   connection.on("close", (reasonCode, description) => {
       console.log("Client disconnected");
+      console.log("  -- Reason Code: " + reasonCode);
+      console.log("  -- Description: " + description);
   });
 });
 
 
-/**
- * Listen on provided port, on all network interfaces.
- */
 
-server.listen(port, () =>{
-  console.log('API Rest Server listening in port: ' + port);
-});
-server.on('error', onError);
-server.on('listening', onListening);
 // Starting the WS server in his current port
 serverWS.listen(wsPort, () =>{
   console.log('Websocket Server listening in port: ' + wsPort);
 })
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-  let port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
-}
-
-/**
- * Event listener for HTTP server "error" event.
- */
+serverWS.on('error', onError);
+serverWS.on('listening', onListening);
 
 function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  let bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
+    if (error.syscall !== 'listen') {
       throw error;
+    }
+  
+    let bind = typeof port === 'string'
+      ? 'Pipe ' + port
+      : 'Port ' + port;
+  
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+      case 'EACCES':
+        console.error(bind + ' requires elevated privileges');
+        process.exit(1);
+        break;
+      case 'EADDRINUSE':
+        console.error(bind + ' is already in use');
+        process.exit(1);
+        break;
+      default:
+        throw error;
+    }
   }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-  let addr = server.address();
-  let bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
-}
+  
+  /**
+   * Event listener for HTTP server "listening" event.
+   */
+  
+  function onListening() {
+    let addr = serverWS.address();
+    let bind = typeof addr === 'string'
+      ? 'pipe ' + addr
+      : 'port ' + addr.port;
+    debug('Listening on ' + bind);
+  }
